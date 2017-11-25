@@ -21,8 +21,9 @@
 //!!!!
 
 // Pins connected to Channel As of Encoders 1-4
-#define ENC0_CHA 1
-#define ENC1_CHA 0
+// Pins 0 and 1 are used for serial comms to the raspi
+#define ENC0_CHA 4
+#define ENC1_CHA 5
 #define ENC2_CHA 2
 #define ENC3_CHA 3
 
