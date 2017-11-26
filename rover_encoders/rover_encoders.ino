@@ -6,8 +6,12 @@
  *  The motor + encoder being used:
  *  https://www.servocity.com/118-rpm-hd-premium-planetary-gear-motor-w-encoder
  *  
- *  Last modified by - Andrew Stuart (4/10/2017)
+ *  Author: Andrew Stuart
+ *  Last modified by - Ben Steer (25/11/2017)
  ****************************************************************************************/
+#define USE_USBCON
+#include <ros.h>            // ROS Arduino library
+#include <rover/RPM.h> // ROS msg for encoders
 
 /************************************************************************************
 * VARIABLE/MACRO DECLARATIONS
@@ -34,6 +38,10 @@ const float dt = 1.0/((float) LOOP_HERTZ);  // Time step (sec)
 
 const unsigned int ppr = GEAR_RATIO * MOTOR_CYCLES_PER_REV * 2; // Pulses per revolution (pulses/rev)
 
+// Declare required ROS variables
+ros::NodeHandle  nh;
+rover::RPM       msg; // Predefine ROS msg
+ros::Publisher   encoders("encoders", &msg);
 
 /************************************************************************************
 * SETUP FUNCTION
@@ -41,23 +49,37 @@ const unsigned int ppr = GEAR_RATIO * MOTOR_CYCLES_PER_REV * 2; // Pulses per re
  ************************************************************************************/
 void setup() 
 {
-  Serial.begin(9600); // Enable serial w/ 9600 baud rate
+  nh.initNode();         // Initialise ROS node 
+  nh.advertise(encoders); // Advertise publisher "encoders"
+  
+  //Serial.begin(9600); // Enable serial w/ 9600 baud rate
   InitPullUpResistors(); // Enable pull-up resistors on encoder channel pins
   InitInterrupts(); // Enable interrupts on Channel A of Encoders 1-4
 }
 
 /************************************************************************************
 * SOFTWARE LOOP
-* This functison will continuously loop forever. It is used to periodically calculate  
+* This function will continuously loop forever. It is used to periodically calculate  
 * the angular velocity of the wheels
  ************************************************************************************/
 void loop() 
 {  
+  msg.rpm_fl = round((LOOP_HERTZ*60*encCnts[0])/ppr); // Front-left RPM
+  msg.rpm_fr = round((LOOP_HERTZ*60*encCnts[1])/ppr); // Front-right RPM
+  msg.rpm_bl = round((LOOP_HERTZ*60*encCnts[2])/ppr); // Back-left RPM
+  msg.rpm_br = round((LOOP_HERTZ*60*encCnts[3])/ppr); // Back-right RPM
+  
+  /*
   for (int i=0; i<4; i++) {
     Serial.print("Encoder " + String(i) + ": " + String(round((LOOP_HERTZ*60*encCnts[i])/ppr)) + " RPM\n"); // 
     encCnts[i] = 0; 
   }
   Serial.print("\n");
+  */
+  
+  encoders.publish( &msg ); // Publish the RPM messages
+  nh.spinOnce();            // Finalise ROS messages
+  
   //todo: check if timer interrupt is more accurate than delay function
   delay(1000*dt);
 }
