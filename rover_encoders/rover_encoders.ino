@@ -20,10 +20,6 @@
 #define GEAR_RATIO 71  // Provided by servo data sheet
 #define MOTOR_CYCLES_PER_REV 12  // Provided by servo data sheet
 
-//!!!!
-//todo: cycles per rev of motor may be 6 due to half resolution with encoders; needs verification
-//!!!!
-
 // Pins connected to Channel As of Encoders 1-4
 // Pins 0 and 1 are used for serial comms to the raspi
 #define ENC0_CHA 2 	//FR
@@ -106,6 +102,7 @@ void enc3() {
 * MISC. FUNCTIONS
  ************************************************************************************/
 void InitPullUpResistors() {
+  // Setup pull-up resistors for interrupt pins
   pinMode(ENC0_CHA, INPUT_PULLUP);
   pinMode(ENC1_CHA, INPUT_PULLUP);
   pinMode(ENC2_CHA, INPUT_PULLUP);
