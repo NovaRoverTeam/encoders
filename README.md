@@ -32,3 +32,10 @@ If you don't see the path for your catkin workspace (default catkin_ws), make su
 
 Once you've done this, go to your catkin workspace and run ``catkin_make``, then rebuild the *ros_lib* Arduino library, as 
 per the instructions for setting up *rosserial* (seen in the link above, under Dependencies).
+
+## Wiring 
+todo: make me neat
+Vcc       - Red
+Channel A - White
+Channel B - Black
+GND       - Blue
