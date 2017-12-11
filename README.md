@@ -34,8 +34,7 @@ Once you've done this, go to your catkin workspace and run ``catkin_make``, then
 per the instructions for setting up *rosserial* (seen in the link above, under Dependencies).
 
 ## Wiring 
-todo: make me neat
-Vcc       - Red
-Channel A - White
-Channel B - Black
+Vcc       - Red<br/>
+Channel A - White<br/>
+Channel B - Black<br/>
 GND       - Blue
