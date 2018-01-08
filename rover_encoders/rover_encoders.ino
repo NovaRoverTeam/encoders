@@ -9,23 +9,23 @@
  *  Author: Andrew Stuart
  *  Last modified by - Ben Steer (25/11/2017)
  ****************************************************************************************/
-#define USE_USBCON
-#include <ros.h>            // ROS Arduino library
+#define USE_USBCON     // for Pro Micro
+#include <ros.h>       // ROS Arduino library
 #include <rover/RPM.h> // ROS msg for encoders
 
 /************************************************************************************
 * VARIABLE/MACRO DECLARATIONS
  ************************************************************************************/
-#define LOOP_HERTZ 10  // Frequency of angular velocity calculation (in Hertz)
+#define LOOP_HERTZ 50  // Frequency of angular velocity calculation (in Hertz)
 #define GEAR_RATIO 71  // Provided by servo data sheet
 #define MOTOR_CYCLES_PER_REV 12  // Provided by servo data sheet
 
-// Pins connected to Channel As of Encoders 1-4
+// Pins connected to Channel A of Encoders 1-4
 // Pins 0 and 1 are used for serial comms to the raspi
-#define ENC0_CHA 2 	//FR
-#define ENC1_CHA 21 //BR
-#define ENC2_CHA 10 //BL
-#define ENC3_CHA 9	//FL
+#define ENC0_CHA 0   //FR
+#define ENC1_CHA 1   //BR
+#define ENC2_CHA 2   //BL
+#define ENC3_CHA 3   //FL
 
 // Encoder counters to keep track of number of pulses (set to long for safety)
 volatile long encCnts[4] = {0, 0, 0, 0};
@@ -46,12 +46,12 @@ ros::Publisher   encoders("encoders", &msg);
  ************************************************************************************/
 void setup() 
 {
-  nh.initNode();         // Initialise ROS node 
+  nh.initNode();          // Initialise ROS node 
   nh.advertise(encoders); // Advertise publisher "encoders"
   
-  //Serial.begin(9600); // Enable serial w/ 9600 baud rate
-  InitPullUpResistors(); // Enable pull-up resistors on encoder channel pins
-  InitInterrupts(); // Enable interrupts on Channel A of Encoders 1-4
+  //Serial.begin(9600);   // Enable serial w/ 9600 baud rate
+  InitPullUpResistors();  // Enable pull-up resistors on encoder channel pins
+  InitInterrupts();       // Enable interrupts on Channel A of Encoders 1-4
 }
 
 /************************************************************************************
@@ -65,19 +65,15 @@ void loop()
   msg.rpm_fr = round((LOOP_HERTZ*60*encCnts[1])/ppr); // Front-right RPM
   msg.rpm_bl = round((LOOP_HERTZ*60*encCnts[2])/ppr); // Back-left RPM
   msg.rpm_br = round((LOOP_HERTZ*60*encCnts[3])/ppr); // Back-right RPM
-  
-  /*
-  for (int i=0; i<4; i++) {
-    Serial.print("Encoder " + String(i) + ": " + String(round((LOOP_HERTZ*60*encCnts[i])/ppr)) + " RPM\n"); // 
-    encCnts[i] = 0; 
-  }
-  Serial.print("\n");
-  */
+
+  encCnts[0] = 0;
+  encCnts[1] = 0;
+  encCnts[2] = 0;
+  encCnts[3] = 0;
   
   encoders.publish( &msg ); // Publish the RPM messages
   nh.spinOnce();            // Finalise ROS messages
   
-  //todo: check if timer interrupt is more accurate than delay function
   delay(1000*dt);
 }
 
