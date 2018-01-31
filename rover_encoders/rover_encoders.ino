@@ -30,6 +30,9 @@
 // Encoder counters to keep track of number of pulses (set to long for safety)
 volatile long encCnts[4] = {0, 0, 0, 0};
 
+// Analog voltage from voltage sensor to arduino pin (A0)
+int voltageVal;
+
 // Loop rate
 const float dt = 1.0/((float) LOOP_HERTZ);  // Time step (sec)
 
@@ -61,6 +64,11 @@ void setup()
  ************************************************************************************/
 void loop() 
 {  
+  float voltage;
+  voltageVal = analogRead (0); //read the value from voltage sensor.
+  voltage = voltageVal*0.023; //voltage value
+  msg.voltage = voltage;
+  
   msg.rpm_fl = round((LOOP_HERTZ*60*encCnts[0])/ppr); // Front-left RPM
   msg.rpm_fr = round((LOOP_HERTZ*60*encCnts[1])/ppr); // Front-right RPM
   msg.rpm_bl = round((LOOP_HERTZ*60*encCnts[2])/ppr); // Back-left RPM
