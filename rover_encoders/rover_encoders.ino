@@ -1,7 +1,8 @@
 /* **************************************************************************************
  *  NOVA ROVER TEAM - URC2018
  *  This code connects four rotary encoders to interrupt service routines
- *  to calculate their angular velocities.
+ *  to calculate their angular velocities, and a voltage sensor to test
+ *  the voltage level the battery. 
  *  
  *  The motor + encoder being used:
  *  https://www.servocity.com/118-rpm-hd-premium-planetary-gear-motor-w-encoder
@@ -12,6 +13,7 @@
 #define USE_USBCON     // for Pro Micro
 #include <ros.h>       // ROS Arduino library
 #include <rover/RPM.h> // ROS msg for encoders
+#include <std_msgs/Float32.h> //Float type for ROS msg for battery voltage sensor
 
 /************************************************************************************
 * VARIABLE/MACRO DECLARATIONS
@@ -43,6 +45,9 @@ ros::NodeHandle  nh;
 rover::RPM       msg; // Predefine ROS msg
 ros::Publisher   encoders("encoders", &msg);
 
+std_msgs::Float32 volt_msg; //ROS msg for voltage readings
+ros::Publisher   voltage("voltage", &volt_msg);
+
 /************************************************************************************
 * SETUP FUNCTION
 * This function runs once to setup pins, hardware, etc...
@@ -51,6 +56,7 @@ void setup()
 {
   nh.initNode();          // Initialise ROS node 
   nh.advertise(encoders); // Advertise publisher "encoders"
+  nh.advertise(voltage); // Advertise publisher "encoders"
   
   //Serial.begin(9600);   // Enable serial w/ 9600 baud rate
   InitPullUpResistors();  // Enable pull-up resistors on encoder channel pins
@@ -67,7 +73,7 @@ void loop()
   float voltage;
   voltageVal = analogRead (0); //read the value from voltage sensor.
   voltage = voltageVal*0.023; //voltage value
-  msg.voltage = voltage;
+  volt_msg.data = voltage;
   
   msg.rpm_fl = round((LOOP_HERTZ*60*encCnts[0])/ppr); // Front-left RPM
   msg.rpm_fr = round((LOOP_HERTZ*60*encCnts[1])/ppr); // Front-right RPM
@@ -80,6 +86,7 @@ void loop()
   encCnts[3] = 0;
   
   encoders.publish( &msg ); // Publish the RPM messages
+  voltage.publish( &volt_msg ); // Publish the voltage reading messages
   nh.spinOnce();            // Finalise ROS messages
   
   delay(1000*dt);
