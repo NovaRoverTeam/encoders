@@ -68,12 +68,18 @@ void setup()
 * This function will continuously loop forever. It is used to periodically calculate  
 * the angular velocity of the wheels
  ************************************************************************************/
-void loop() 
-{  
+
+void ReadVoltage()
+{
   float voltage;
   voltageVal = analogRead (0); //read the value from voltage sensor.
-  voltage = voltageVal*0.023; //voltage value
-  volt_msg.data = voltage;
+  voltage = voltageVal*0.0208; //voltage value
+  volt_msg.data = voltage;  
+}
+
+void loop() 
+{    
+  ReadVoltage();
   
   msg.rpm_fl = round((LOOP_HERTZ*60*encCnts[0])/ppr); // Front-left RPM
   msg.rpm_fr = round((LOOP_HERTZ*60*encCnts[1])/ppr); // Front-right RPM
