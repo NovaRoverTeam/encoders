@@ -13,6 +13,7 @@
 #define USE_USBCON     // for Pro Micro
 #include <ros.h>       // ROS Arduino library
 #include <rover/RPM.h> // ROS msg for encoders
+#include <rover/Voltages.h> // ROS msg for encoders
 #include <std_msgs/Float32.h> //Float type for ROS msg for battery voltage sensor
 
 /************************************************************************************
@@ -32,9 +33,6 @@
 // Encoder counters to keep track of number of pulses (set to long for safety)
 volatile long encCnts[4] = {0, 0, 0, 0};
 
-// Analog voltage from voltage sensor to arduino pin (A0)
-int voltageVal;
-
 // Loop rate
 const float dt = 1.0/((float) LOOP_HERTZ);  // Time step (sec)
 
@@ -45,7 +43,7 @@ ros::NodeHandle  nh;
 rover::RPM       msg; // Predefine ROS msg
 ros::Publisher   encoders("encoders", &msg);
 
-std_msgs::Float32 volt_msg; //ROS msg for voltage readings
+rover::Voltages volt_msg; //ROS msg for voltage readings
 ros::Publisher   voltage("voltage", &volt_msg);
 
 /************************************************************************************
@@ -71,10 +69,19 @@ void setup()
 
 void ReadVoltage()
 {
-  float voltage;
-  voltageVal = analogRead (0); //read the value from voltage sensor.
-  voltage = voltageVal*0.0208; //voltage value
-  volt_msg.data = voltage;  
+  float voltages[4] = {0, 0, 0, 0};
+
+  voltages[0] = analogRead (A9); //read the value from voltage sensor.
+  voltages[1] = analogRead (A8); //read the value from voltage sensor.
+  voltages[2] = analogRead (A7); //read the value from voltage sensor.
+  voltages[3] = analogRead (A10); //read the value from voltage sensor.
+
+  for (int i=0; i<4; i++)
+  {
+    voltages[i] = voltages[i]*0.0208; //voltage value  
+  }
+
+  volt_msg.data = voltages;  
 }
 
 void loop() 
