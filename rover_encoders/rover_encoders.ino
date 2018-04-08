@@ -19,7 +19,8 @@
 /************************************************************************************
 * VARIABLE/MACRO DECLARATIONS
  ************************************************************************************/
-#define LOOP_HERTZ 50  // Frequency of angular velocity calculation (in Hertz)
+#define LOOP_HERTZ 50     // Frequency of angular velocity calculation (in Hertz)
+#define VOLT_LOOP_HERTZ 1 // Frequency of voltage publishing, must be smaller than LOOP_HERTZ
 #define GEAR_RATIO 71  // Provided by servo data sheet
 #define MOTOR_CYCLES_PER_REV 12  // Provided by servo data sheet
 
@@ -35,6 +36,10 @@ volatile long encCnts[4] = {0, 0, 0, 0};
 
 // Loop rate
 const float dt = 1.0/((float) LOOP_HERTZ);  // Time step (sec)
+
+int voltLoopCnt = 0; // Counter for voltage message publishing
+const int voltLoopMax = LOOP_HERTZ/VOLT_LOOP_HERTZ;
+const float calibVolt = 0.0208; // Calibrate raw voltage to actual
 
 const unsigned int ppr = GEAR_RATIO * MOTOR_CYCLES_PER_REV * 2; // Pulses per revolution (pulses/rev)
 
@@ -69,24 +74,30 @@ void setup()
 
 void ReadVoltage()
 {
-  float voltages[4] = {0, 0, 0, 0};
+  float f1, f2, f3, f4;
 
-  voltages[0] = analogRead (A9); //read the value from voltage sensor.
-  voltages[1] = analogRead (A8); //read the value from voltage sensor.
-  voltages[2] = analogRead (A7); //read the value from voltage sensor.
-  voltages[3] = analogRead (A10); //read the value from voltage sensor.
-
-  for (int i=0; i<4; i++)
-  {
-    voltages[i] = voltages[i]*0.0208; //voltage value  
-  }
-
-  volt_msg.data = voltages;  
+  f1 = analogRead (A9)*calibVolt; //read the values from voltage sensors.
+  volt_msg.v1 = f1;
+  
+  f2 = analogRead (A8)*calibVolt; 
+  volt_msg.v2 = f2;
+  
+  f3 = analogRead (A7)*calibVolt; 
+  volt_msg.v3 = f3;
+  
+  f4 = analogRead (A10)*calibVolt; 
+  volt_msg.v4 = f4;
 }
 
 void loop() 
 {    
-  ReadVoltage();
+  voltLoopCnt++;
+  if (voltLoopCnt >= voltLoopMax) // If such time has passed for the voltage loop to occur
+  {
+    ReadVoltage();
+    voltage.publish( &volt_msg ); // Publish the voltage reading messages
+    voltLoopCnt = 0;
+  }
   
   msg.rpm_fl = round((LOOP_HERTZ*60*encCnts[0])/ppr); // Front-left RPM
   msg.rpm_fr = round((LOOP_HERTZ*60*encCnts[1])/ppr); // Front-right RPM
@@ -99,7 +110,6 @@ void loop()
   encCnts[3] = 0;
   
   encoders.publish( &msg ); // Publish the RPM messages
-  voltage.publish( &volt_msg ); // Publish the voltage reading messages
   nh.spinOnce();            // Finalise ROS messages
   
   delay(1000*dt);
