@@ -39,7 +39,7 @@ const float dt = 1.0/((float) LOOP_HERTZ);  // Time step (sec)
 
 int voltLoopCnt = 0; // Counter for voltage message publishing
 const int voltLoopMax = LOOP_HERTZ/VOLT_LOOP_HERTZ;
-const float calibVolt = 0.0208; // Calibrate raw voltage to actual
+const float calibVolt = 0.02174848; // Calibrate raw voltage to actual
 
 const unsigned int ppr = GEAR_RATIO * MOTOR_CYCLES_PER_REV * 2; // Pulses per revolution (pulses/rev)
 
