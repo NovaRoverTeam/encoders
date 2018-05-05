@@ -8,7 +8,6 @@
  *  https://www.servocity.com/118-rpm-hd-premium-planetary-gear-motor-w-encoder
  *  
  *  Author: Andrew Stuart
- *  Last modified by - Ben Steer (25/11/2017)
  ****************************************************************************************/
 #define USE_USBCON     // for Pro Micro
 #include <ros.h>       // ROS Arduino library
@@ -46,10 +45,10 @@ const unsigned int ppr = GEAR_RATIO * MOTOR_CYCLES_PER_REV * 2; // Pulses per re
 // Declare required ROS variables
 ros::NodeHandle  nh;
 rover::RPM       msg; // Predefine ROS msg
-ros::Publisher   encoders("encoders", &msg);
+ros::Publisher   encoders("/encoders", &msg);
 
 rover::Voltages volt_msg; //ROS msg for voltage readings
-ros::Publisher   voltage("voltage", &volt_msg);
+ros::Publisher   voltage("/voltage", &volt_msg);
 
 /************************************************************************************
 * SETUP FUNCTION
