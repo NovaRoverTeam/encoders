@@ -20,15 +20,18 @@
  ************************************************************************************/
 #define LOOP_HERTZ 50     // Frequency of angular velocity calculation (in Hertz)
 #define VOLT_LOOP_HERTZ 1 // Frequency of voltage publishing, must be smaller than LOOP_HERTZ
-#define GEAR_RATIO 71  // Provided by servo data sheet
-#define MOTOR_CYCLES_PER_REV 12  // Provided by servo data sheet
+#define GEAR_RATIO 58.85  // Provided by servo data sheet
+#define MOTOR_CYCLES_PER_REV 32  // Provided by servo data sheet
 
 // Pins connected to Channel A of Encoders 1-4
 // Pins 0 and 1 are used for serial comms to the raspi
-#define ENC0_CHA 0   //FR
-#define ENC1_CHA 1   //BR
-#define ENC2_CHA 2   //BL
-#define ENC3_CHA 3   //FL
+#define ENC2_CHA 0   //BL
+#define ENC3_CHA 1   //FL
+#define ENC1_CHA 2   //BR
+#define ENC0_CHA 3   //FR
+
+
+
 
 // Encoder counters to keep track of number of pulses (set to long for safety)
 volatile long encCnts[4] = {0, 0, 0, 0};
